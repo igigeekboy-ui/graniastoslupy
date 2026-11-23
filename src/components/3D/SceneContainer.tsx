@@ -41,10 +41,11 @@ export default function SceneContainer({
   cameraResetTrigger,
 }: SceneContainerProps): React.ReactElement {
   return (
-    <div className="w-full h-full relative outline-none select-none">
+    <div className="w-full h-full relative outline-none select-none canvas-touch-container">
       <Canvas
         camera={{ position: [7, 7, 8], fov: 45 }}
         gl={{ antialias: true, alpha: false }}
+        dpr={[1, 2]}
         className="w-full h-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
       >
         {/* Lighting setup */}

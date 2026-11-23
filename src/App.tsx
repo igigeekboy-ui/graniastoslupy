@@ -4,6 +4,7 @@ import PrismSelector from './components/UI/PrismSelector'
 import FoldSlider from './components/UI/FoldSlider'
 import ViewSettings from './components/UI/ViewSettings'
 import PrismInfo from './components/UI/PrismInfo'
+import BottomSheetDrawer from './components/UI/BottomSheetDrawer'
 import SceneContainer from './components/3D/SceneContainer'
 import { usePrismState } from './hooks/usePrismState'
 import { getPrismConfig } from './math/prismConfigs'
@@ -30,14 +31,18 @@ export default function App(): React.ReactElement {
     resetCamera,
   } = usePrismState('square')
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true)
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
 
   const currentConfig = getPrismConfig(prismType)
 
   return (
-    <div className="relative w-screen h-screen flex flex-col bg-slate-950 text-slate-100 overflow-hidden">
+    <div className="relative w-full h-[100dvh] min-h-[100dvh] flex flex-col bg-slate-950 text-slate-100 overflow-hidden select-none safe-pb">
       {/* Top Navigation */}
-      <Header />
+      <Header
+        onResetCamera={resetCamera}
+        onOpenDrawer={() => setIsMobileDrawerOpen(true)}
+      />
 
       {/* Main 3D Viewport with Floating Controls Overlay */}
       <main className="relative flex-1 w-full h-full overflow-hidden">
@@ -49,22 +54,22 @@ export default function App(): React.ReactElement {
           cameraResetTrigger={cameraResetTrigger}
         />
 
-        {/* Mobile Toggle Button for Sidebar */}
+        {/* Desktop Sidebar Toggle Button */}
         <button
-          onClick={() => setIsSidebarOpen(prev => !prev)}
-          aria-label={isSidebarOpen ? 'Ukryj panel opcji' : 'Pokaż panel opcji'}
-          className="md:hidden absolute top-4 right-4 z-30 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900/90 text-indigo-400 border border-slate-800 shadow-xl backdrop-blur-md text-xs font-semibold"
+          onClick={() => setIsDesktopSidebarOpen(prev => !prev)}
+          aria-label={isDesktopSidebarOpen ? 'Ukryj panel opcji' : 'Pokaż panel opcji'}
+          className="hidden lg:flex absolute top-3.5 right-4 z-30 items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 text-indigo-400 hover:text-indigo-300 border border-slate-800 shadow-xl backdrop-blur-md text-xs font-semibold transition-colors"
         >
-          {isSidebarOpen ? <X className="w-4 h-4" /> : <SlidersHorizontal className="w-4 h-4" />}
-          <span>{isSidebarOpen ? 'Zamknij' : 'Opcje'}</span>
+          {isDesktopSidebarOpen ? <X className="w-4 h-4" /> : <SlidersHorizontal className="w-4 h-4" />}
+          <span>{isDesktopSidebarOpen ? 'Ukryj opcje' : 'Pokaż opcje'}</span>
         </button>
 
-        {/* Right Floating Sidebar */}
+        {/* Right Floating Sidebar for Desktop (lg and up) */}
         <aside
-          className={`absolute top-4 right-4 z-20 flex flex-col gap-3 w-80 max-w-[calc(100vw-2rem)] max-h-[calc(100%-7rem)] md:max-h-[calc(100%-2rem)] overflow-y-auto pr-1 pointer-events-auto transition-all duration-300 ${
-            isSidebarOpen
+          className={`hidden lg:flex absolute top-14 right-4 z-20 flex-col gap-3 w-80 max-h-[calc(100%-7.5rem)] overflow-y-auto pr-1 pointer-events-auto transition-all duration-300 ${
+            isDesktopSidebarOpen
               ? 'translate-x-0 opacity-100'
-              : 'translate-x-[120%] opacity-0 pointer-events-none md:translate-x-0 md:opacity-100 md:pointer-events-auto'
+              : 'translate-x-[120%] opacity-0 pointer-events-none'
           }`}
         >
           <PrismSelector
@@ -84,8 +89,8 @@ export default function App(): React.ReactElement {
           />
         </aside>
 
-        {/* Bottom Floating Folding Controller */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 w-full max-w-xl px-4 pointer-events-auto">
+        {/* Bottom Floating Folding Controller (Touch-Friendly Dock) */}
+        <div className="absolute bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 w-full max-w-xl px-3 sm:px-4 pointer-events-auto safe-mb">
           <FoldSlider
             foldProgress={foldProgress}
             onFoldProgressChange={setFoldProgress}
@@ -95,6 +100,24 @@ export default function App(): React.ReactElement {
             onUnfold={unfold}
             speed={speed}
             onSpeedChange={setSpeed}
+            onOpenDrawer={() => setIsMobileDrawerOpen(true)}
+          />
+        </div>
+
+        {/* Mobile Bottom Sheet Drawer (< lg) */}
+        <div className="lg:hidden">
+          <BottomSheetDrawer
+            isOpen={isMobileDrawerOpen}
+            onClose={() => setIsMobileDrawerOpen(false)}
+            prismType={prismType}
+            onSelectPrismType={setPrismType}
+            currentConfig={currentConfig}
+            viewSettings={viewSettings}
+            onToggleWireframe={toggleWireframe}
+            onToggleColorBases={toggleColorBases}
+            onToggleLabels={toggleLabels}
+            onToggleResetFoldOnSwitch={toggleResetFoldOnSwitch}
+            onResetCamera={resetCamera}
           />
         </div>
       </main>

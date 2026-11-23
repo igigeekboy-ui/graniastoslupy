@@ -63,4 +63,24 @@ describe('App Integration', () => {
     fireEvent.click(screen.getByRole('button', { name: /pokaż panel opcji/i }))
     expect(screen.getByRole('button', { name: /ukryj panel opcji/i })).toBeInTheDocument()
   })
+
+  it('opens and closes mobile bottom sheet drawer via mobile options button', () => {
+    render(<App />)
+
+    // Bottom sheet is initially closed
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+    // Open drawer via Header button
+    const openDrawerBtn = screen.getByRole('button', { name: /otwórz panel opcji/i })
+    fireEvent.click(openDrawerBtn)
+
+    // Dialog is now visible
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: /bryła/i })).toBeInTheDocument()
+
+    // Close drawer
+    const closeBtn = screen.getByRole('button', { name: /zamknij arkusz/i })
+    fireEvent.click(closeBtn)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
 })

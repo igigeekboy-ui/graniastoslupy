@@ -25,6 +25,20 @@ describe('UI Components', () => {
     expect(screen.queryByText(/Skróty klawiszowe/i)).not.toBeInTheDocument()
   })
 
+  it('renders Header with resetCamera and openDrawer handlers', () => {
+    const onResetCamera = vi.fn()
+    const onOpenDrawer = vi.fn()
+    render(<Header onResetCamera={onResetCamera} onOpenDrawer={onOpenDrawer} />)
+
+    const resetBtn = screen.getByRole('button', { name: /reset widoku kamery/i })
+    fireEvent.click(resetBtn)
+    expect(onResetCamera).toHaveBeenCalledTimes(1)
+
+    const drawerBtn = screen.getByRole('button', { name: /otwórz panel opcji/i })
+    fireEvent.click(drawerBtn)
+    expect(onOpenDrawer).toHaveBeenCalledTimes(1)
+  })
+
   it('renders PrismSelector and handles selection', () => {
     const onSelect = vi.fn()
     render(<PrismSelector activeType="square" onSelect={onSelect} />)
@@ -79,6 +93,34 @@ describe('UI Components', () => {
     const slider = screen.getByRole('slider')
     fireEvent.change(slider, { target: { value: '75' } })
     expect(onFoldChange).toHaveBeenCalledWith(0.75)
+  })
+
+  it('renders FoldSlider with onOpenDrawer and speed cycler', () => {
+    const onOpenDrawer = vi.fn()
+    const onSpeedChange = vi.fn()
+
+    render(
+      <FoldSlider
+        foldProgress={0.5}
+        onFoldProgressChange={vi.fn()}
+        isPlaying={true}
+        onTogglePlay={vi.fn()}
+        onFold={vi.fn()}
+        onUnfold={vi.fn()}
+        speed={1}
+        onSpeedChange={onSpeedChange}
+        onOpenDrawer={onOpenDrawer}
+      />
+    )
+
+    const optionsBtn = screen.getByRole('button', { name: /opcje i wybór bryły/i })
+    fireEvent.click(optionsBtn)
+    expect(onOpenDrawer).toHaveBeenCalledTimes(1)
+
+    const speedButtons = screen.getAllByRole('button', { name: /prędkość animacji 1x/i })
+    expect(speedButtons.length).toBeGreaterThan(0)
+    fireEvent.click(speedButtons[0])
+    expect(onSpeedChange).toHaveBeenCalledWith(2.0)
   })
 
   it('renders ViewSettings and triggers toggles and camera reset', () => {
